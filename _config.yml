@@ -1,1 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boarding School College Matriculation Comparison</title>
+<style>
+  :root{
+    --navy: #1d3a5f;
+    --blue-deep: #2c5f8a;
+    --blue-mid: #6fa3cf;
+    --blue-pale: #eaf3fa;
+    --blue-line: #c7dcee;
+    --paper: #ffffff;
+    --ink: #223142;
+    --ink-soft: #5b6b7c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif; line-height: 1.5; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 56px 24px 100px; }
+  header.page-head { border-bottom: 3px solid var(--navy); padding-bottom: 22px; margin-bottom: 20px; }
+  .kicker { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; letter-spacing: 0.04em; color: var(--blue-deep); margin: 0 0 6px; }
+  h1 { font-size: 28px; margin: 0 0 10px; color: var(--navy); font-weight: 600; }
+  .lede { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--ink-soft); font-size: 15px; max-width: 68ch; margin: 0; }
 
+  .scale-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 24px 0 30px; }
+  .scale-card { border: 1px solid var(--blue-line); border-radius: 10px; padding: 13px 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; border-top: 4px solid var(--card-color); }
+  .scale-card .school { font-family: 'Iowan Old Style', Georgia, serif; font-size: 14.5px; font-weight: 600; color: var(--navy); margin-bottom: 7px; }
+  .scale-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-soft); padding: 2px 0; gap: 6px; }
+  .scale-row b { color: var(--ink); text-align: right; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 22px; border-bottom: 1px solid var(--blue-line); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; flex-wrap: wrap; }
+  .tab-btn { background: none; border: none; padding: 11px 12px; font-size: 13.5px; color: var(--ink-soft); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .tab-btn.active { color: var(--navy); font-weight: 600; border-bottom: 3px solid var(--navy); }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .group { border: 1px solid var(--blue-line); border-radius: 10px; margin-bottom: 16px; overflow: hidden; background: var(--paper); }
+  .group-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; background: var(--blue-pale); border: none; cursor: pointer; text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .group-head:hover { background: #dfedf8; }
+  .group-title { display: flex; flex-direction: column; gap: 3px; }
+  .group-title .name { font-family: 'Iowan Old Style', Georgia, serif; font-size: 19px; color: var(--navy); font-weight: 600; }
+  .group-title .count { font-size: 12.5px; color: var(--blue-deep); }
+  .group-title .share { font-size: 11.5px; color: var(--ink-soft); }
+  .chevron { width: 20px; height: 20px; flex-shrink: 0; transition: transform 0.25s ease; color: var(--blue-deep); }
+  .group.open .chevron { transform: rotate(180deg); }
+  .group-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .group.open .group-body { max-height: 6000px; }
+  .college-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 24px; padding: 18px 22px 22px; }
+  @media (max-width: 620px) { .college-list { grid-template-columns: 1fr; } }
+  .college-item { padding: 8px 0; border-bottom: 1px solid #f0f5fa; font-size: 14.5px; display: flex; justify-content: space-between; gap: 8px; }
+  .college-item button { background: none; border: none; padding: 0; font: inherit; color: var(--ink); cursor: pointer; text-align: left; flex: 1; }
+  .college-item .n { font-size: 12.5px; color: var(--ink-soft); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; flex-shrink: 0; padding-top: 2px; }
+  .college-item.has-desc button { color: var(--blue-deep); border-bottom: 1px dotted var(--blue-mid); }
+  .college-item.has-desc button:hover { color: var(--navy); }
+  .desc-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; color: var(--ink-soft); line-height: 1.55; }
+  .desc-panel.open { max-height: 300px; padding-top: 6px; }
+
+  .legend { margin: 10px 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; color: var(--ink-soft); display: flex; gap: 14px; flex-wrap: wrap; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  .compare-block { margin-bottom: 34px; }
+  .compare-block h3 { font-size: 17px; color: var(--navy); margin: 0 0 12px; font-family: 'Iowan Old Style', Georgia, serif; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 32px; align-items: center; gap: 10px; margin-bottom: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; }
+  .bar-track { background: #f0f5fa; border-radius: 6px; height: 13px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; }
+  .bar-group { margin-bottom: 20px; }
+  .bar-group-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+
+  .overlap-list { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.9; }
+  .overlap-list .tag { display: inline-block; background: var(--blue-pale); border: 1px solid var(--blue-line); border-radius: 20px; padding: 3px 12px; margin: 0 6px 6px 0; color: var(--navy); font-size: 12.5px; }
+
+  .conclusion { margin-top: 44px; border-top: 3px solid var(--navy); padding-top: 24px; }
+  .conclusion h2 { font-size: 22px; color: var(--navy); margin: 0 0 14px; }
+  .conclusion p { font-size: 15.5px; max-width: 72ch; margin: 0 0 14px; }
+
+  footer.note { margin-top: 44px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; color: #8a97a5; border-top: 1px solid var(--blue-line); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <p class="kicker">FIVE NEW ENGLAND / NORTHEAST BOARDING SCHOOLS</p>
+    <h1>College Matriculation Comparison</h1>
+    <p class="lede">Where graduates of five boarding schools enrolled in recent years, grouped by how many students went to each college. Tap a group to expand it, and tap a highlighted college name for a short description.</p>
+  </header>
+
+  <div class="scale-box" id="scale-box"></div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="views"></div>
+
+  <div id="view-compare" class="view">
+    <div class="compare-block">
+      <h3>Number of colleges reaching each tier</h3>
+      <div id="bar-chart"></div>
+    </div>
+    <div class="compare-block">
+      <h3>Colleges in the top tier (20+ students) at <u>all five</u> schools</h3>
+      <div class="overlap-list" id="overlap-top5"></div>
+    </div>
+    <div class="compare-block">
+      <h3>Top single-school numbers (highest count reported)</h3>
+      <div class="overlap-list" id="top-numbers"></div>
+    </div>
+  </div>
+
+  <div class="conclusion">
+    <h2>Conclusion</h2>
+    <p>Only two colleges land in the top tier (20 or more matriculants) at <b>every one</b> of the five schools: <b>Georgetown University</b> and <b>Cornell University</b>. That is a small, tight overlap given how differently these five schools are sized and how differently each window of years was measured — it says something real about the shared appeal of those two schools across the whole boarding-school landscape, not just one or two of these campuses.</p>
+    <p>Harvard, Yale, and Brown are in the top tier at four of the five schools, missing only at Hotchkiss — but that's mostly a function of Hotchkiss's much smaller graduating class (≈160/year vs. 225–300 elsewhere) rather than weaker interest; Harvard's 18 Hotchkiss matriculants would clear 20 at most other schools' pace if scaled up proportionally.</p>
+    <p>Choate Rosemary Hall's numbers are the most concentrated of any school here in absolute terms: University of Chicago (63), New York University (54), and Yale (42) are unusually high raw counts, but Choate also has the largest graduating pool (≈1,250 over five years), so as a share of the class they land around 3–5%, similar to the concentration Hotchkiss shows with Georgetown (~5%) despite Hotchkiss being roughly half Choate's size. Lawrenceville shows its own strong concentration toward Cornell (38) and University of Pennsylvania (36).</p>
+    <p>Phillips Academy remains the most evenly spread of the five, sending 5 or more students to over 50 different colleges rather than concentrating heavily on a handful. Across all five schools, the picture is consistent: a small set of highly selective universities (Georgetown, Cornell, Harvard, Yale, Brown, Columbia, Penn, NYU, University of Chicago) absorb a disproportionate share of graduates, while a long tail of 60–90 other colleges each take a handful of students per school. None of this reflects admissions difficulty or outcomes — only where each school's graduates chose to enroll.</p>
+  </div>
+
+  <footer class="note">Phillips Academy: past 3 classes (≈300/yr). Deerfield Academy: 2022–2026 (≈180–190/yr), colleges with 3+ matriculants only. Hotchkiss: 2023–2026 (≈160/yr). Choate Rosemary Hall: classes of 2021–2025 (≈250/yr), colleges with 3+ matriculants. Lawrenceville School: last five years (≈225/yr), colleges with 5+ matriculants only. Descriptions are brief, general overviews and not affiliated with the schools listed.</footer>
+
+</div>
+
+<script>
+const descriptions = {
+  "Harvard University": "The oldest institution of higher education in the U.S., founded in 1636, known for its breadth of graduate and professional schools alongside Harvard College.",
+  "Yale University": "An Ivy League research university in New Haven, Connecticut, noted for its residential college system and strong programs in the humanities and law.",
+  "Princeton University": "An Ivy League university in New Jersey known for its undergraduate focus, a required senior thesis, and strong programs in physics, public policy, and the humanities.",
+  "Columbia University": "A private Ivy League research university in New York City, known for its Core Curriculum and its schools of journalism, law, and business.",
+  "Brown University": "An Ivy League university in Providence, Rhode Island, known for its Open Curriculum, which gives undergraduates unusual freedom in designing their course of study.",
+  "University of Pennsylvania": "An Ivy League university in Philadelphia, home to the Wharton School, one of the world's best-known undergraduate business programs.",
+  "Cornell University": "An Ivy League land-grant university in Ithaca, New York, distinctive for combining private and state-supported colleges, including strong programs in engineering, agriculture, and hotel administration.",
+  "Dartmouth College": "The smallest Ivy League school, located in Hanover, New Hampshire, known for its emphasis on undergraduate teaching and its quarter-based academic calendar.",
+  "Stanford University": "A private research university in California's Bay Area, known for close ties to Silicon Valley and strengths in engineering, computer science, and entrepreneurship.",
+  "Massachusetts Institute of Technology": "A research university in Cambridge, Massachusetts, renowned worldwide for engineering, computer science, and the physical sciences.",
+  "University of Chicago": "A private research university known for a rigorous, discussion-based undergraduate Core Curriculum and influential work in economics and social thought.",
+  "Duke University": "A private research university in Durham, North Carolina, known for strong programs in medicine, public policy, and a prominent Division I athletics program.",
+  "Northwestern University": "A private research university near Chicago, known for its journalism, theatre, and communications programs alongside strong sciences and engineering.",
+  "Georgetown University": "The oldest Catholic and Jesuit university in the U.S., located in Washington, D.C., well known for international affairs and government-related fields.",
+  "New York University": "A large private research university based in Manhattan, with a global network of campuses and study-away sites and strong arts, film, and business programs.",
+  "Boston University": "A large private research university in Boston known for its urban campus and broad range of programs, including communications, business, and the sciences.",
+  "Boston College": "A private Jesuit university outside Boston known for its liberal arts core, strong finance and pre-professional programs, and Division I athletics.",
+  "Tufts University": "A private research university near Boston known for international relations, strong sciences, and a close-knit undergraduate community.",
+  "University of California, Berkeley": "A flagship public research university and founding campus of the University of California system, known for engineering, sciences, and a tradition of student activism.",
+  "University of California-Berkeley": "A flagship public research university and founding campus of the University of California system, known for engineering, sciences, and a tradition of student activism.",
+  "University of California – Berkeley": "A flagship public research university and founding campus of the University of California system, known for engineering, sciences, and a tradition of student activism.",
+  "University of California (Berkeley)": "A flagship public research university and founding campus of the University of California system, known for engineering, sciences, and a tradition of student activism.",
+  "University of Michigan": "A large public research university in Ann Arbor known for its broad academic strength, especially in engineering, business, and the sciences, and its major Division I athletics program.",
+  "University of Michigan – Ann Arbor": "A large public research university in Ann Arbor known for its broad academic strength, especially in engineering, business, and the sciences, and its major Division I athletics program.",
+  "University of Virginia": "A public university founded by Thomas Jefferson, known for its distinctive Academical Village campus and strong programs in law, business, and the liberal arts.",
+  "University of Virginia (Main Campus)": "A public university founded by Thomas Jefferson, known for its distinctive Academical Village campus and strong programs in law, business, and the liberal arts.",
+  "University of North Carolina at Chapel Hill": "The flagship public university of North Carolina, known for its strong liberal arts programs, journalism school, and Division I basketball.",
+  "The University of North Carolina at Chapel Hill": "The flagship public university of North Carolina, known for its strong liberal arts programs, journalism school, and Division I basketball.",
+  "University of North Carolina – Chapel Hill": "The flagship public university of North Carolina, known for its strong liberal arts programs, journalism school, and Division I basketball.",
+  "Williams College": "A small, highly selective liberal arts college in western Massachusetts, consistently ranked among the top liberal arts colleges in the country.",
+  "Amherst College": "A small liberal arts college in Massachusetts known for its open curriculum, which has no distribution requirements beyond a first-year seminar.",
+  "Wellesley College": "A women's liberal arts college in Massachusetts known for strong preparation in the sciences and government and a network of accomplished alumnae.",
+  "Wesleyan University": "A liberal arts college in Connecticut known for interdisciplinary study, a strong film program, and a politically engaged student body.",
+  "Middlebury College": "A liberal arts college in Vermont well known for language study and its schools abroad, as well as environmental studies programs.",
+  "Vanderbilt University": "A private research university in Nashville known for strong programs in education, engineering, and business alongside a traditional liberal arts core.",
+  "University of Southern California": "A large private research university in Los Angeles known for film, business, and engineering, with close ties to the entertainment industry.",
+  "Carnegie Mellon University": "A private research university in Pittsburgh especially known for computer science, engineering, and the fine arts.",
+  "University of St. Andrews": "Scotland's oldest university, founded in the early 1400s, known for its strong programs in international relations and the sciences.",
+  "University of St Andrews": "Scotland's oldest university, founded in the early 1400s, known for its strong programs in international relations and the sciences.",
+  "University of St Andrews, Scotland": "Scotland's oldest university, founded in the early 1400s, known for its strong programs in international relations and the sciences.",
+  "Northeastern University": "A private research university in Boston best known for its cooperative education model, which places students in extended paid work terms as part of their degree.",
+  "Emory University": "A private research university in Atlanta known for strong pre-health programs, business, and its ties to the Centers for Disease Control.",
+  "Bates College": "A small liberal arts college in Maine, one of the first coeducational colleges in New England, known for its outdoor and environmental focus.",
+  "University of Massachusetts, Amherst": "The flagship campus of the UMass system, a large public research university known for engineering, business, and a strong public health program.",
+  "University of Massachusetts Amherst": "The flagship campus of the UMass system, a large public research university known for engineering, business, and a strong public health program.",
+  "University of Miami": "A private research university in Coral Gables, Florida, known for marine science, business, and a large, diverse student body.",
+  "University of Wisconsin": "A large public flagship university in Madison known for research strength across the sciences, strong journalism and economics programs, and a major Big Ten athletics presence.",
+  "University of Wisconsin-Madison": "A large public flagship university in Madison known for research strength across the sciences, strong journalism and economics programs, and a major Big Ten athletics presence.",
+  "University of Wisconsin – Madison": "A large public flagship university in Madison known for research strength across the sciences, strong journalism and economics programs, and a major Big Ten athletics presence.",
+  "University of Wisconsin (Madison)": "A large public flagship university in Madison known for research strength across the sciences, strong journalism and economics programs, and a major Big Ten athletics presence.",
+  "Bowdoin College": "A small liberal arts college in Maine known for a need-blind admissions policy and strong environmental studies and government programs.",
+  "Brandeis University": "A mid-sized research university near Boston founded with Jewish sponsorship, known for the sciences and social justice-oriented programs.",
+  "Case Western Reserve University": "A private research university in Cleveland known for engineering, medicine, and a flexible cross-disciplinary curriculum.",
+  "Colby College": "A liberal arts college in Waterville, Maine, known for environmental studies and a January winter term called Jan Plan.",
+  "Colgate University": "A liberal arts college in upstate New York known for a strong economics department and a close residential campus community.",
+  "College of the Holy Cross": "A Jesuit liberal arts college in Worcester, Massachusetts, focused exclusively on undergraduate education.",
+  "Colorado College": "A liberal arts college in Colorado Springs known for its Block Plan, in which students take one course at a time in intensive blocks.",
+  "McGill University": "A leading Canadian research university in Montreal known for medicine, law, and a large international student population.",
+  "Rutgers University": "The flagship public research university of New Jersey, known for its size, diversity, and strong programs in the sciences and business.",
+  "Rutgers University—New Brunswick": "The flagship campus of New Jersey's public research university system, known for its size, diversity, and strong programs in the sciences and business.",
+  "Rutgers University (New Brunswick)": "The flagship campus of New Jersey's public research university system, known for its size, diversity, and strong programs in the sciences and business.",
+  "Southern Methodist University": "A private university in Dallas known for its business school and strong ties to the local business community.",
+  "Trinity College": "A small liberal arts college in Hartford, Connecticut, known for its urban campus and strong economics and international studies programs.",
+  "Union College": "A small liberal arts college in Schenectady, New York, notable for combining a liberal arts curriculum with engineering programs.",
+  "United States Naval Academy": "A federal service academy in Annapolis, Maryland, that prepares students for commissioning as officers in the Navy or Marine Corps.",
+  "United States Military Academy-West Point": "The U.S. Army's federal service academy in New York, which prepares students for commissioning as Army officers alongside a demanding academic program.",
+  "University of California, Los Angeles": "A large public research university in Los Angeles known for film, business, and the sciences, and one of the most selective UC campuses.",
+  "University of California-Los Angeles": "A large public research university in Los Angeles known for film, business, and the sciences, and one of the most selective UC campuses.",
+  "University of California – Los Angeles": "A large public research university in Los Angeles known for film, business, and the sciences, and one of the most selective UC campuses.",
+  "Washington University in St. Louis": "A private research university in Missouri known for strong pre-med, business, and architecture programs.",
+  "Hamilton College": "A liberal arts college in central New York known for its open curriculum and a longstanding emphasis on writing across the disciplines.",
+  "Villanova University": "A private Catholic university near Philadelphia known for engineering, business, and a nationally prominent basketball program.",
+  "Wake Forest University": "A private university in North Carolina that blends a liberal arts core with strong pre-professional programs in business and medicine.",
+  "Rice University": "A private research university in Houston known for engineering and the sciences, a low student-to-faculty ratio, and a residential college system.",
+  "Johns Hopkins University": "A private research university in Baltimore recognized as the first U.S. research university, known especially for medicine and public health.",
+  "Swarthmore College": "A small liberal arts college near Philadelphia known for a rigorous honors program and strength in the sciences.",
+  "University of Notre Dame": "A private Catholic research university in Indiana known for its strong undergraduate teaching focus, business program, and Division I football tradition.",
+  "William & Mary": "The second-oldest college in the United States, a public university in Virginia known for government, pre-law, and a strong liberal arts tradition.",
+  "William and Mary": "The second-oldest college in the United States, a public university in Virginia known for government, pre-law, and a strong liberal arts tradition.",
+  "Bucknell University": "A private university in Lewisburg, Pennsylvania, that combines a liberal arts foundation with strong engineering and business programs in a small residential setting.",
+  "Claremont McKenna College": "A liberal arts college in Southern California and member of the Claremont Colleges consortium, known for economics, government, and public policy.",
+  "Lafayette College": "A small liberal arts and engineering college in Easton, Pennsylvania, known for close faculty mentorship alongside a strong engineering program.",
+  "Hobart and William Smith Colleges": "Coordinate liberal arts colleges in Geneva, New York — Hobart for men and William Smith for women — sharing one campus and curriculum.",
+  "Barnard College": "A women's liberal arts college in New York City affiliated with Columbia University, known for strong programs in the sciences, arts, and public affairs.",
+  "Syracuse University": "A large private research university in upstate New York known for its journalism, communications, and architecture programs.",
+  "Fordham University": "A private Jesuit university based in New York City, known for law, business, and communications programs and strong ties to the city's job market.",
+  "Tulane University": "A private research university in New Orleans known for strong pre-health and business programs and extensive service-learning requirements.",
+  "Tulane University of Louisiana": "A private research university in New Orleans known for strong pre-health and business programs and extensive service-learning requirements.",
+  "University of Connecticut": "The flagship public university of Connecticut, known for strong engineering and business programs and a nationally prominent basketball program.",
+  "George Washington University": "A private university in the heart of Washington, D.C., known for international affairs, political science, and access to government internships.",
+  "Howard University": "A private, historically Black research university in Washington, D.C., with strong programs in law, medicine, and the arts.",
+  "Lehigh University": "A private university in Bethlehem, Pennsylvania, known for strong engineering and business programs in a mid-sized setting.",
+  "Occidental College": "A small liberal arts college in Los Angeles known for its interdisciplinary approach and a notable diplomacy and world affairs program.",
+  "Pennsylvania State University": "A large public research university based in State College, Pennsylvania, known for engineering, business, and major Division I athletics.",
+  "Purdue University": "A large public research university in Indiana known for engineering, computer science, and aviation programs.",
+  "Purdue University (Main Campus)": "A large public research university in Indiana known for engineering, computer science, and aviation programs.",
+  "Skidmore College": "A liberal arts college in Saratoga Springs, New York, known for a flexible curriculum and strength in the visual and performing arts.",
+  "University of Illinois – Urbana-Champaign": "The flagship public university of Illinois, known for engineering and one of the largest computer science programs in the country.",
+  "University of Illinois at Urbana-Champaign": "The flagship public university of Illinois, known for engineering and one of the largest computer science programs in the country.",
+  "University of Richmond": "A private university in Virginia known for small class sizes, a strong business school, and a distinctive coordinate college system.",
+  "University of Vermont": "A public research university in Burlington known for environmental studies, medicine, and a strong outdoor culture.",
+  "Davidson College": "A small liberal arts college in North Carolina known for its honor code and strong pre-med and economics programs.",
+  "Dickinson College": "A liberal arts college in Carlisle, Pennsylvania, known for international and environmental studies and a global education focus.",
+  "Franklin and Marshall College": "A liberal arts college in Lancaster, Pennsylvania, known for close faculty mentorship and strong government and pre-law programs.",
+  "Georgia Institute of Technology": "A public research university in Atlanta widely regarded as one of the top engineering and computer science schools in the country.",
+  "Indiana University (Bloomington)": "The flagship public university of Indiana, known for its business school, music school, and strength across the sciences and humanities.",
+  "University of Texas at Austin": "The flagship public university of Texas, known for engineering, business, and computer science, and one of the largest research universities in the country.",
+  "University of Texas – Austin": "The flagship public university of Texas, known for engineering, business, and computer science, and one of the largest research universities in the country.",
+  "Washington and Lee University": "A small liberal arts university in Virginia known for its honor system and strong pre-law and business programs.",
+  "Clemson University": "A public research university in South Carolina known for engineering and a major Division I athletics program."
+};
+
+const schools = [
+  {
+    key: "pa", label: "Phillips Academy", color: "#2c5f8a", total: 900,
+    years: "3 (≈2024–26)", classSize: "≈300/yr",
+    groups: [
+      { title: "30+ students", range: [30,40], colleges: ["Boston University","Columbia University","Harvard University","University of Chicago"] },
+      { title: "20–29 students", range: [20,29], colleges: ["Boston College","Brown University","Cornell University","Georgetown University","Massachusetts Institute of Technology","New York University","Northwestern University","Stanford University","Tufts University","Yale University"] },
+      { title: "10–19 students", range: [10,19], colleges: ["Bates College","Carnegie Mellon University","Dartmouth College","Emory University","Middlebury College","Northeastern University","University of California, Berkeley","University of Massachusetts, Amherst","University of Miami","University of Michigan","University of North Carolina at Chapel Hill","University of Pennsylvania","University of St. Andrews","University of Virginia","University of Wisconsin","Wellesley College","Wesleyan University","Williams College"] },
+      { title: "5–9 students", range: [5,9], colleges: ["Amherst College","Babson College","Barnard College","Bowdoin College","Brandeis University","Case Western Reserve University","Colby College","Colgate University","College of the Holy Cross","Colorado College","Duke University","McGill University","Princeton University","Rutgers University","Southern Methodist University","Trinity College","Union College","United States Naval Academy","University of California, Los Angeles","Vanderbilt University","Villanova University","Washington University in St. Louis"] }
+    ]
+  },
+  {
+    key: "da", label: "Deerfield Academy", color: "#7a5c3e", total: 925,
+    years: "5 (2022–26)", classSize: "≈180–190/yr",
+    groups: [
+      { title: "30+ students", range: [30,40], colleges: ["Georgetown University","Harvard University","Middlebury College","Yale University"] },
+      { title: "20–29 students", range: [20,29], colleges: ["Brown University","Cornell University","Tufts University","University of Pennsylvania","University of Virginia","Vanderbilt University"] },
+      { title: "10–19 students", range: [10,19], colleges: ["Bates College","Boston College","Bowdoin College","Colby College","Colgate University","Columbia University","Dartmouth College","Duke University","Hamilton College","New York University","Northwestern University","Princeton University","Southern Methodist University","Stanford University","University of Chicago","University of Michigan","University of St Andrews","Villanova University","Wake Forest University","Williams College"] },
+      { title: "3–9 students", range: [3,9], colleges: ["American University","Babson College","Boston University","Bucknell University","Carnegie Mellon University","College of the Holy Cross","Colorado College","Connecticut College","Denison University","Emory University","Endicott College","Haverford College","Hobart and William Smith Colleges","Howard University","IE University—Madrid","Johns Hopkins University","Lehigh University","Massachusetts Institute of Technology","Mount Holyoke College","Northeastern University","Pomona College","Purdue University","Rensselaer Polytechnic Institute","Rice University","Rutgers University—New Brunswick","Santa Clara University","Skidmore College","Smith College","Spelman College","St. Lawrence University","Swarthmore College","Syracuse University","The George Washington University","The University of North Carolina at Chapel Hill","The University of Texas at Austin","Trinity College","Tulane University","Union College","United States Military Academy","United States Naval Academy","University at Albany, State University of New York","University of California-Los Angeles","University of Connecticut","University of Denver","University of Illinois at Urbana-Champaign","University of Massachusetts Amherst","University of New Hampshire","University of Notre Dame","University of Richmond","University of Rochester","University of Southern California","University of Vermont","University of Wisconsin-Madison","Virginia Tech","Wellesley College","Wesleyan University","William & Mary"] }
+    ]
+  },
+  {
+    key: "ha", label: "Hotchkiss", color: "#3f7d5c", total: 640,
+    years: "4 (2023–26)", classSize: "≈160/yr",
+    groups: [
+      { title: "30+ students", range: [30,40], colleges: [["Georgetown University",33]] },
+      { title: "20–29 students", range: [20,29], colleges: [["University of Chicago",28],["Cornell University",20]] },
+      { title: "10–19 students", range: [10,19], colleges: [["Columbia University",19],["Colgate University",18],["Harvard University",18],["Brown University",17],["Yale University",17],["Princeton University",15],["Northeastern University",14],["Tufts University",12],["University of Pennsylvania",12],["Washington University in St. Louis",12],["Bowdoin College",11],["Dartmouth College",11],["Boston College",10],["New York University",10]] },
+      { title: "5–9 students", range: [5,9], colleges: [["Boston University",9],["Bucknell University",9],["Middlebury College",9],["Wesleyan University",9],["Colby College",8],["Duke University",8],["Massachusetts Institute of Technology",8],["Trinity College",8],["Barnard College",7],["Northwestern University",7],["University of California-Berkeley",7],["University of Virginia",7],["Hobart and William Smith Colleges",6],["Johns Hopkins University",6],["University of Michigan",6],["University of North Carolina at Chapel Hill",6],["University of St Andrews, Scotland",6],["University of Southern California",6],["Case Western Reserve University",5],["Claremont McKenna College",5],["Lafayette College",5],["Stanford University",5],["Syracuse University",5],["United States Naval Academy",5]] }
+    ]
+  },
+  {
+    key: "ch", label: "Choate Rosemary Hall", color: "#b1552c", total: 1250,
+    years: "5 (2021–25)", classSize: "≈250/yr",
+    groups: [
+      { title: "30+ students", range: [30,68], colleges: [["New York University",54],["University of Chicago",63],["Yale University",42],["Columbia University",39],["Cornell University",35]] },
+      { title: "20–29 students", range: [20,29], colleges: [["Boston College",27],["Georgetown University",27],["Brown University",24],["Northeastern University",26],["University of Pennsylvania",25],["University of Michigan – Ann Arbor",22],["University of Southern California",22],["Harvard University",20],["University of St Andrews",23]] },
+      { title: "10–19 students", range: [10,19], colleges: [["Amherst College",13],["Barnard College",15],["Boston University",18],["Colby College",11],["Dartmouth College",15],["Emory University",13],["Fordham University",11],["Middlebury College",14],["Northwestern University",16],["Princeton University",17],["Trinity College",11],["Tufts University",16],["Tulane University",17],["University of California – Berkeley",12],["University of Connecticut",14],["Washington University in St. Louis",16],["Wesleyan University",17]] },
+      { title: "5–9 students", range: [5,9], colleges: [["Babson College",7],["Bates College",7],["Bowdoin College",5],["Bucknell University",5],["Carnegie Mellon University",8],["Case Western Reserve University",7],["Colorado College",7],["Duke University",8],["George Washington University",7],["Hamilton College",7],["Howard University",5],["Lafayette College",5],["Lehigh University",5],["Occidental College",5],["Pennsylvania State University",5],["Purdue University",9],["Skidmore College",8],["Southern Methodist University",9],["Stanford University",8],["United States Military Academy-West Point",5],["University of California – Los Angeles",6],["University of Illinois – Urbana-Champaign",5],["University of Miami",8],["University of Richmond",6],["University of Vermont",6],["University of Virginia",9],["Vanderbilt University",7],["Villanova University",6],["Wake Forest University",5],["Wellesley College",9],["William and Mary",6],["Williams College",6]] },
+      { title: "3–4 students", range: [3,4], colleges: [["American University",3],["California Institute of Technology",3],["Cal Poly – San Luis Obispo",3],["Carleton College",3],["Claremont McKenna College",3],["Colgate University",4],["College of the Holy Cross",3],["Davidson College",3],["Georgia Institute of Technology",4],["Gettysburg College",3],["Haverford College",3],["Johns Hopkins University",4],["Loyola University Maryland",4],["Marist College",3],["Oberlin College",3],["Pitzer College",4],["Quinnipiac University",4],["Rensselaer Polytechnic Institute",3],["Rhode Island School of Design",3],["Santa Clara University",3],["St. Olaf College",3],["St. Lawrence University",4],["Swarthmore College",4],["University of California – Santa Barbara",3],["University of Colorado – Boulder",3],["University of Florida",3],["University of North Carolina – Chapel Hill",4],["University of Saint Joseph",3],["University of Texas – Austin",3],["University of Wisconsin – Madison",4],["Vassar College",3],["Worcester Polytechnic Institute",3],["Trinity College Dublin",4],["University of Edinburgh",4],["University of Toronto",3]] }
+    ]
+  },
+  {
+    key: "law", label: "Lawrenceville School", color: "#5c4a7a", total: 1125,
+    years: "5 (2021–25)", classSize: "≈225/yr",
+    groups: [
+      { title: "30+ students", range: [30,38], colleges: [["Cornell University",38],["Georgetown University",34],["New York University",36],["Princeton University",30],["University of Pennsylvania",36]] },
+      { title: "20–29 students", range: [20,29], colleges: [["Brown University",23],["Columbia University",22],["Duke University",23],["Harvard University",26],["Lehigh University",25],["Northwestern University",20],["Tufts University",20]] },
+      { title: "10–19 students", range: [10,19], colleges: [["Boston College",13],["Bucknell University",11],["Carnegie Mellon University",13],["Colby College",10],["Dartmouth College",10],["Indiana University (Bloomington)",11],["Johns Hopkins University",14],["Middlebury College",10],["Northeastern University",19],["Southern Methodist University",14],["Stanford University",13],["Syracuse University",18],["University of California (Berkeley)",10],["University of Chicago",18],["University of Miami",11],["University of Michigan",16],["University of North Carolina at Chapel Hill",11],["University of Southern California",16],["University of Virginia (Main Campus)",16],["Wake Forest University",17],["Washington University in St. Louis",10],["Yale University",14]] },
+      { title: "5–9 students", range: [5,9], colleges: [["Amherst College",6],["Babson College",9],["Bates College",5],["Boston University",9],["Bowdoin College",7],["Case Western Reserve University",6],["Clemson University",5],["Colgate University",8],["College of the Holy Cross",5],["Davidson College",8],["Dickinson College",8],["Fordham University",7],["Franklin and Marshall College",6],["Georgia Institute of Technology",5],["Hamilton College",9],["Howard University",5],["Lafayette College",6],["Massachusetts Institute of Technology",8],["Penn State University (University Park)",6],["Purdue University (Main Campus)",8],["Rutgers University (New Brunswick)",8],["Trinity College",7],["Tulane University of Louisiana",7],["Union College",8],["United States Naval Academy",5],["University of Colorado (Boulder)",5],["University of Illinois at Urbana-Champaign",5],["University of Richmond",8],["University of St Andrews",8],["University of Texas at Austin",9],["University of Wisconsin (Madison)",9],["Vanderbilt University",7],["Villanova University",8],["Washington and Lee University",5],["Wesleyan University",9],["William and Mary",6],["Williams College",9]] }
+    ]
+  }
+];
+
+const tierPalette = ["#1d3a5f","#2c5f8a","#6fa3cf","#c7dcee","#f0e4d8"];
+
+function tierName(entry) { return Array.isArray(entry) ? entry[0] : entry; }
+function tierCount(entry) { return Array.isArray(entry) ? entry[1] : null; }
+
+// Build scale cards
+const scaleBox = document.getElementById('scale-box');
+schools.forEach(s => {
+  const card = document.createElement('div');
+  card.className = 'scale-card';
+  card.style.setProperty('--card-color', s.color);
+  card.innerHTML = `
+    <div class="school">${s.label}</div>
+    <div class="scale-row"><span>Years</span><b>${s.years}</b></div>
+    <div class="scale-row"><span>Class size</span><b>${s.classSize}</b></div>
+    <div class="scale-row"><span>Total pool</span><b>≈${s.total.toLocaleString()}</b></div>
+  `;
+  scaleBox.appendChild(card);
+});
+
+// Build tabs
+const tabsEl = document.getElementById('tabs');
+schools.forEach((s, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+  btn.textContent = s.label;
+  btn.dataset.view = s.key;
+  tabsEl.appendChild(btn);
+});
+const compareBtn = document.createElement('button');
+compareBtn.className = 'tab-btn';
+compareBtn.textContent = 'Compare All';
+compareBtn.dataset.view = 'compare';
+tabsEl.appendChild(compareBtn);
+
+// Build views
+const viewsEl = document.getElementById('views');
+schools.forEach((s, i) => {
+  const view = document.createElement('div');
+  view.className = 'view' + (i === 0 ? ' active' : '');
+  view.id = 'view-' + s.key;
+
+  const groupsContainer = document.createElement('div');
+  groupsContainer.id = 'groups-' + s.key;
+  view.appendChild(groupsContainer);
+
+  const legend = document.createElement('div');
+  legend.className = 'legend';
+  s.groups.forEach((g, idx) => {
+    legend.innerHTML += `<span><span class="swatch" style="background:${tierPalette[idx]}"></span> ${g.title}</span>`;
+  });
+  view.appendChild(legend);
+
+  viewsEl.appendChild(view);
+});
+
+function renderGroups(containerId, groupData, totalPool) {
+  const container = document.getElementById(containerId);
+  groupData.forEach((g, idx) => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'group' + (idx === 0 ? ' open' : '');
+
+    const lowPct = (g.range[0] / totalPool * 100).toFixed(1);
+    const highPct = (g.range[1] / totalPool * 100).toFixed(1);
+
+    const head = document.createElement('button');
+    head.className = 'group-head';
+    head.innerHTML = `
+      <span class="group-title">
+        <span class="name">${g.title}</span>
+        <span class="count">${g.colleges.length} colleges — tap to ${idx === 0 ? 'collapse' : 'expand'}</span>
+        <span class="share">${lowPct}%–${highPct}% of the total pool, per school</span>
+      </span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    `;
+    head.style.borderLeft = `5px solid ${tierPalette[idx]}`;
+
+    const body = document.createElement('div');
+    body.className = 'group-body';
+
+    const list = document.createElement('div');
+    list.className = 'college-list';
+
+    g.colleges.forEach(entry => {
+      const name = tierName(entry);
+      const count = tierCount(entry);
+
+      const item = document.createElement('div');
+      const hasDesc = !!descriptions[name];
+      item.className = 'college-item' + (hasDesc ? ' has-desc' : '');
+
+      const btn = document.createElement('button');
+      btn.textContent = name;
+      item.appendChild(btn);
+
+      if (count !== null) {
+        const n = document.createElement('span');
+        n.className = 'n';
+        n.textContent = count;
+        item.appendChild(n);
+      }
+
+      list.appendChild(item);
+
+      if (hasDesc) {
+        const descWrap = document.createElement('div');
+        descWrap.style.gridColumn = '1 / -1';
+        const desc = document.createElement('div');
+        desc.className = 'desc-panel';
+        desc.textContent = descriptions[name];
+        descWrap.appendChild(desc);
+        list.appendChild(descWrap);
+        btn.addEventListener('click', () => desc.classList.toggle('open'));
+      }
+    });
+
+    body.appendChild(list);
+
+    head.addEventListener('click', () => {
+      groupEl.classList.toggle('open');
+      const countSpan = head.querySelector('.count');
+      const isOpen = groupEl.classList.contains('open');
+      countSpan.textContent = `${g.colleges.length} colleges — tap to ${isOpen ? 'collapse' : 'expand'}`;
+    });
+
+    groupEl.appendChild(head);
+    groupEl.appendChild(body);
+    container.appendChild(groupEl);
+  });
+}
+
+schools.forEach(s => renderGroups('groups-' + s.key, s.groups, s.total));
+
+// Tabs behavior
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+  });
+});
+
+// Bar chart: colleges per tier (first 4 tiers only, common across schools)
+const tierLabels = ["30+", "20–29", "10–19", "5–9 (DA: 3–9)"];
+const chartEl = document.getElementById('bar-chart');
+const maxBar = Math.max(...schools.flatMap(s => s.groups.slice(0,4).map(g => g.colleges.length)));
+
+tierLabels.forEach((label, tIdx) => {
+  const group = document.createElement('div');
+  group.className = 'bar-group';
+  const lbl = document.createElement('div');
+  lbl.className = 'bar-group-label';
+  lbl.textContent = label + ' students';
+  group.appendChild(lbl);
+
+  schools.forEach(s => {
+    const g = s.groups[tIdx];
+    const val = g ? g.colleges.length : 0;
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `<span>${s.label}</span><div class="bar-track"><div class="bar-fill" style="width:${(val/maxBar*100).toFixed(0)}%; background:${s.color}"></div></div><span>${val}</span>`;
+    group.appendChild(row);
+  });
+
+  chartEl.appendChild(group);
+});
+
+// Overlap: colleges in top tier (range[0] >= 20) at ALL five schools
+const topSets = schools.map(s => new Set(
+  s.groups.filter(g => g.range[0] >= 20).flatMap(g => g.colleges.map(tierName))
+));
+let overlapAll = [...topSets[0]];
+topSets.slice(1).forEach(set => { overlapAll = overlapAll.filter(c => set.has(c)); });
+
+document.getElementById('overlap-top5').innerHTML = overlapAll.map(c => `<span class="tag">${c}</span>`).join('') || '<em>None</em>';
+
+// Top single numbers
+const topNumbers = [];
+schools.forEach(s => {
+  const top = s.groups[0].colleges[0];
+  topNumbers.push(`<span class="tag">${s.label}: ${tierName(top)} — ${tierCount(top)}</span>`);
+});
+document.getElementById('top-numbers').innerHTML = topNumbers.join('');
+</script>
+
+</body>
+</html>
